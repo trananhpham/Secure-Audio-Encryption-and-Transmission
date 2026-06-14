@@ -39,7 +39,21 @@
         <button class="btn-danger" onclick="simulateAttack('tampering', 'at2')">Sửa at2</button>
         <button class="btn-danger" onclick="simulateAttack('reorder', 'at1,at3,at2,at4,at5')">Đảo at2 và at3</button>
         <button class="btn-danger" onclick="simulateAttack('duplicate', 'at3')">Tạo bản sao at3</button>
-        <button class="btn-danger" onclick="simulateAttack('replay', '')">Mô phỏng replay</button>
+        <button class="btn-danger" onclick="simulateAttack('replay', '')" id="btn-sim-replay">Mô phỏng replay</button>
+    </div>
+
+    <hr style="margin: 1.5rem 0; border: 0; border-top: 1px dashed #fecdd3;">
+    
+    <h3 style="color: #4f46e5; margin-bottom: 0.5rem;">🕵️‍♂️ Góc nhìn của Hacker (Tin tặc)</h3>
+    <p class="text-sm" style="color: #64748b; margin-bottom: 1rem;">Nếu Hacker chặn bắt được các gói tin trên đường truyền, đây là âm thanh họ thu được. Bạn có thể bấm Play để thử nghe tiếng dữ liệu đã bị mã hóa:</p>
+    
+    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <p id="hacker-status" style="font-weight: 600; margin-bottom: 0.5rem; color: #4f46e5;">🎧 Kênh truyền bình thường (tất cả các gói tin bị mã hóa)</p>
+        <audio controls id="hacker-audio" data-src="/api/transfer/{{ audio_id }}/hacker_file" class="preview-audio" style="margin-bottom: 0.5rem; width: 100%;"></audio>
+        <p style="color: #ef4444; font-weight: 600; font-size: 0.9rem; margin-top: 0.5rem;">
+            🛡️ BẢO VỆ THÀNH CÔNG: Âm thanh bạn đang nghe chỉ là tiếng rè (white noise) do toàn bộ dữ liệu thật đã bị băm nát bởi AES-256!
+        </p>
+        <a href="/api/transfer/{{ audio_id }}/hacker_file" id="hacker-download" download="stolen_data.wav" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem; margin-top: 0.5rem;">⬇️ Tải tệp dữ liệu đã chặn bắt (.wav)</a>
     </div>
     <p id="sim-msg" class="status-pass mt-2" style="display: none;"></p>
 </div>
