@@ -195,3 +195,42 @@ def api_simulate(action):
         return jsonify({"message": f"Mô phỏng {action} thành công"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@web_bp.route('/api/transfer/<audio_id>/hacker_file', methods=['GET'])
+def get_hacker_file(audio_id):
+    """Serve the encrypted files as a playable WAV of white noise for the hacker view demonstration"""
+    import io
+    import wave
+    from flask import send_file
+    
+    channel_dir = Config.OUTPUT_DIR / "channel" / audio_id
+    if not channel_dir.exists():
+        return "Channel not found", 404
+
+    order_path = channel_dir / "received_order.json"
+    if order_path.exists():
+        import json
+        with open(order_path, "r") as f:
+            order = json.load(f)
+        enc_files = [channel_dir / f for f in order if (channel_dir / f).exists()]
+    else:
+        # Lấy tất cả file theo thứ tự tên (bỏ qua nếu có file noise sinh ra từ bản cũ)
+        enc_files = sorted([f for f in channel_dir.glob("*.enc") if not f.name.endswith("noise.wav")])
+        
+    if not enc_files:
+        return "File not found", 404
+        
+    encrypted_bytes = b""
+    for enc_file in enc_files:
+        with open(enc_file, "rb") as f:
+            encrypted_bytes += f.read()
+            
+    wav_io = io.BytesIO()
+    with wave.open(wav_io, 'wb') as wav_file:
+        wav_file.setnchannels(1)       # Mono
+        wav_file.setsampwidth(1)       # 8-bit (tiếng rè rè đặc trưng)
+        wav_file.setframerate(16000)   # 16kHz
+        wav_file.writeframes(encrypted_bytes)
+        
+    wav_io.seek(0)
+    return send_file(wav_io, as_attachment=False, mimetype="audio/wav", download_name="stolen_data.wav")
