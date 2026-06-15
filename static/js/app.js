@@ -187,6 +187,8 @@ async function pollStatus(id) {
             }
         } else if (state.status === 'error') {
             document.getElementById('status-message').className = "status-text status-fail";
+            // Hiện lại các nút để người dùng có thể bấm vào Xem Kết Quả hoặc Xem Log
+            document.getElementById('post-send-actions').style.display = 'flex';
         } else {
             // continue polling
             setTimeout(() => pollStatus(id), 1000);
