@@ -1,0 +1,9 @@
+2026-06-18 04:54:55,414 - WARNING - [security] - MISSING_SEGMENT_DETECTED: at3.enc
+2026-06-18 04:54:55,699 - WARNING - [security] - REPLAY_DETECTED: Session 4ebe2a36-0495-4224-8560-611be8251891 is already completed
+2026-06-18 04:55:12,188 - WARNING - [security] - MISSING_SEGMENT_DETECTED: at3.enc
+2026-06-18 04:55:12,505 - WARNING - [security] - REPLAY_DETECTED: Session b4961e08-57f6-4d0e-b92b-11d530e8b691 is already completed
+2026-06-18 04:55:47,358 - WARNING - [security] - MISSING_SEGMENT_DETECTED: at3.enc
+2026-06-18 04:55:47,778 - WARNING - [security] - REPLAY_DETECTED: Session 66dcd232-c056-40ec-a507-c3119745f24f is already completed
+2026-06-18 05:16:47,203 - WARNING - [security] - REPLAY_DETECTED: Session f2534e3c-8092-48e4-9ed2-daeecb5d7c53 is already completed
+2026-06-18 05:35:07,689 - WARNING - [security] - MISSING_SEGMENT_DETECTED: at3.enc
+2026-06-18 05:35:07,950 - WARNING - [security] - REPLAY_DETECTED: Session f131f527-0370-45a7-948e-4005d7901548 is already completed

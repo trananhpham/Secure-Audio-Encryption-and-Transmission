@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h1>Mã hóa và Truyền Âm thanh An toàn</h1>
+    <p>Chọn đúng 5 đoạn âm thanh (at1 đến at5) để bắt đầu phiên bảo mật.</p>
+</div>
+
+<div class="upload-section">
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div class="upload-grid">
+            {% for i in range(1, 6) %}
+            <div class="audio-card" id="card-at{{ i }}">
+                <h3>Đoạn {{ i }}</h3>
+                <div class="file-input-wrapper">
+                    <input type="file" id="file-at{{ i }}" name="file{{ i }}" accept=".mp3,.wav" required onchange="handleFileSelect({{ i }}, event)">
+                    <label for="file-at{{ i }}" class="btn-secondary">Chọn File</label>
+                </div>
+                <div class="file-info" id="info-at{{ i }}">
+                    <p class="filename">Chưa chọn file</p>
+                    <p class="meta"></p>
+                    <audio controls class="preview-audio" id="audio-at{{ i }}" style="display: none;"></audio>
+                    <p class="status error-text" id="error-at{{ i }}"></p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="global-error" class="status-fail" style="display: none; margin-top: 20px;"></div>
+
+        <div class="action-buttons">
+            <button type="button" class="btn-primary" id="btn-validate" onclick="validateFiles()">Kiểm tra 5 đoạn</button>
+            <button type="button" class="btn-primary" id="btn-send" onclick="sendFiles()" disabled>Mã hóa và gửi</button>
+            <button type="button" class="btn-danger" id="btn-clear" onclick="clearForm()">Xóa dữ liệu</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

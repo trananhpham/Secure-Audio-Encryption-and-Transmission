@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Nhật ký Hệ thống (Logs) - Phiên: <span class="text-sm">{{ audio_id }}</span></h2>
+    
+    <div class="filter-group mb-4 mt-4">
+        <label for="log-filter">Lọc theo sự kiện: </label>
+        <select id="log-filter" onchange="filterLogs()">
+            <option value="ALL">Tất cả</option>
+            <option value="INFO">Thành công (INFO)</option>
+            <option value="WARNING">Cảnh báo (WARNING)</option>
+            <option value="ERROR">Lỗi (ERROR)</option>
+            <option value="ENCRYPT">Mã hóa (ENCRYPT)</option>
+            <option value="DECRYPT">Giải mã (DECRYPT)</option>
+        </select>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table" id="log-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Level</th>
+                    <th>Event</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+    <div class="mt-4">
+        <a href="/result/{{ audio_id }}" class="btn-secondary" style="text-decoration: none;">Quay lại Kết quả</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const audioId = "{{ audio_id }}";
+    window.onload = () => {
+        loadLogs(audioId);
+    };
+</script>
+{% endblock %}
