@@ -113,11 +113,11 @@ class Sender:
                 # 17. Ciphertext Hash
                 ct_hash = Hashing.hash_data(ciphertext)
                 
-                # Write ciphertext to temp sender dir
-                enc_filename = f"{filepath.stem}.enc"
+                # Write ciphertext to temp sender dir using Steganography
+                enc_filename = f"{filepath.stem}_stego.wav"
                 enc_path = sender_session_dir / enc_filename
-                with open(enc_path, "wb") as f:
-                    f.write(ciphertext)
+                from src.crypto.steganography import Steganography
+                Steganography.embed_data_eof(ciphertext, enc_path)
                 
                 encrypted_files.append(enc_path)
                 expected_order.append(filepath.name)
@@ -159,8 +159,14 @@ class Sender:
                 segments=segments
             )
             
+            private_key_path = Path("secrets/sender_private.pem")
+            public_key_path = Path("secrets/sender_public.pem")
+            if not private_key_path.exists() or not public_key_path.exists():
+                key_mgr.generate_ecdsa_keypair(private_key_path, public_key_path)
+            private_key = key_mgr.get_ecdsa_private_key(private_key_path)
+            
             manifest_path = sender_session_dir / "manifest.json"
-            ManifestManager.create_manifest(manifest, hmac_key, manifest_path)
+            ManifestManager.create_manifest(manifest, hmac_key, manifest_path, ecdsa_private_key=private_key)
             logger.log_event("MANIFEST_CREATED")
             
             # 21. Simulate sending to channel

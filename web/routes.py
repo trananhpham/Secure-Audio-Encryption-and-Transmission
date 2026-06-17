@@ -163,6 +163,42 @@ def download_manifest(audio_id):
 def health():
     return jsonify({"status": "ok"})
 
+@web_bp.route('/api/transfer/<audio_id>/entropy', methods=['GET'])
+def api_entropy(audio_id):
+    upload_dir = Config.OUTPUT_DIR / "uploads" / audio_id
+    channel_dir = Config.OUTPUT_DIR / "channel" / audio_id
+    
+    if not upload_dir.exists() or not channel_dir.exists():
+        return jsonify({"error": "Dữ liệu không tồn tại"}), 404
+        
+    from src.crypto.hashing import Hashing
+    
+    # Calculate for at1
+    pt_files = sorted([f for f in upload_dir.glob("*.*") if f.is_file()])
+    if not pt_files:
+        return jsonify({"error": "Không tìm thấy file gốc"}), 404
+        
+    pt_path = pt_files[0]
+    with open(pt_path, "rb") as f:
+        pt_entropy = Hashing.calculate_entropy(f.read())
+    
+    ct_files = sorted([f for f in channel_dir.glob("*_stego.wav")])
+    if not ct_files:
+        ct_files = sorted([f for f in channel_dir.glob("*.enc")])
+    
+    if not ct_files:
+        return jsonify({"error": "Không tìm thấy file mã hóa"}), 404
+        
+    ct_path = ct_files[0]
+    with open(ct_path, "rb") as f:
+        ct_entropy = Hashing.calculate_entropy(f.read())
+    
+    return jsonify({
+        "segment": pt_path.name,
+        "plaintext_entropy": round(pt_entropy, 4),
+        "ciphertext_entropy": round(ct_entropy, 4)
+    })
+
 # ----------------- SIMULATION ROUTES -----------------
 @web_bp.route('/api/simulate/<action>', methods=['POST'])
 def api_simulate(action):
@@ -215,7 +251,9 @@ def get_hacker_file(audio_id):
         enc_files = [channel_dir / f for f in order if (channel_dir / f).exists()]
     else:
         # Lấy tất cả file theo thứ tự tên (bỏ qua nếu có file noise sinh ra từ bản cũ)
-        enc_files = sorted([f for f in channel_dir.glob("*.enc") if not f.name.endswith("noise.wav")])
+        enc_files = sorted([f for f in channel_dir.glob("*_stego.wav")])
+        if not enc_files:
+            enc_files = sorted([f for f in channel_dir.glob("*.enc") if not f.name.endswith("noise.wav")])
         
     if not enc_files:
         return "File not found", 404

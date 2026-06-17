@@ -37,8 +37,10 @@ class ProtocolValidator:
         # Here we simulate reading files from channel. We sort them by sequence number.
         # However, we must ensure all expected files are present.
         
-        # List all .enc files
-        enc_files = [f for f in channel_dir.iterdir() if f.suffix == ".enc"]
+        # List all .enc or _stego.wav files
+        enc_files = [f for f in channel_dir.iterdir() if f.name.endswith("_stego.wav")]
+        if not enc_files:
+            enc_files = [f for f in channel_dir.iterdir() if f.suffix == ".enc"]
         enc_filenames = [f.name for f in enc_files]
         
         # 1. Missing
