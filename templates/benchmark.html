@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Benchmark Report</h2>
+    <div class="mb-4">
+        <button class="btn-primary" onclick="runBenchmark()" id="btn-run-benchmark">Chạy Benchmark Mới</button>
+        <span id="bench-status" class="ml-2"></span>
+    </div>
+    
+    <div id="benchmark-results" style="display: none;">
+        <h3>Kết quả Tốc độ Xử lý</h3>
+        <div class="table-responsive">
+            <table class="table" id="bench-table">
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Total Size (Bytes)</th>
+                        <th>Send Time (s)</th>
+                        <th>Recv Time (s)</th>
+                        <th>Total Time (s)</th>
+                        <th>Enc Throughput (Mbps)</th>
+                        <th>Dec Throughput (Mbps)</th>
+                        <th>Storage Overhead</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <h3 class="mt-4">Biểu đồ</h3>
+        <div style="max-width: 600px; margin: 0 auto;">
+            <canvas id="benchChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let benchChart = null;
+
+async function runBenchmark() {
+    const btn = document.getElementById('btn-run-benchmark');
+    const status = document.getElementById('bench-status');
+    btn.disabled = true;
+    status.innerText = "Đang chạy benchmark, vui lòng chờ...";
+    
+    try {
+        const res = await fetch('/api/benchmark', { method: 'POST' });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        
+        document.getElementById('benchmark-results').style.display = 'block';
+        status.innerText = "Hoàn tất!";
+        
+        const tbody = document.querySelector('#bench-table tbody');
+        tbody.innerHTML = '';
+        
+        const labels = [];
+        const sendTimes = [];
+        const recvTimes = [];
+        
+        data.forEach(row => {
+            labels.push(row.format.toUpperCase());
+            sendTimes.push(row.send_time_sec);
+            recvTimes.push(row.recv_time_sec);
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.format.toUpperCase()}</td>
+                <td>${row.total_size_bytes.toLocaleString()}</td>
+                <td>${row.send_time_sec.toFixed(4)}</td>
+                <td>${row.recv_time_sec.toFixed(4)}</td>
+                <td>${row.total_time_sec.toFixed(4)}</td>
+                <td>${row.enc_throughput_mbps.toFixed(2)}</td>
+                <td>${row.dec_throughput_mbps.toFixed(2)}</td>
+                <td>${row.storage_overhead_bytes.toLocaleString()} bytes</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        // Draw chart
+        if (benchChart) benchChart.destroy();
+        const ctx = document.getElementById('benchChart').getContext('2d');
+        benchChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Send Time (s)',
+                        data: sendTimes,
+                        backgroundColor: '#3498db'
+                    },
+                    {
+                        label: 'Receive Time (s)',
+                        data: recvTimes,
+                        backgroundColor: '#9b59b6'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+        
+    } catch (err) {
+        status.innerText = "Lỗi: " + err.message;
+        status.style.color = "red";
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

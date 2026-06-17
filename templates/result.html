@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Kết quả Giải mã và Ghép nối</h2>
+    <div id="result-container" style="display:none;">
+        <h3 class="status-success mb-2">Ghép âm thanh thành công</h3>
+        <div class="result-info">
+            <p><strong>Audio ID:</strong> <span id="res-audio-id"></span></p>
+            <p><strong>Original SHA-256:</strong> <span id="res-hash-orig" class="hash-text"></span></p>
+            <p><strong>Reconstructed SHA-256:</strong> <span id="res-hash-recon" class="hash-text"></span></p>
+            <div class="hash-result mt-2" id="res-hash-match"></div>
+        </div>
+        
+        <div class="player-container mt-4">
+            <h4>Trình phát âm thanh</h4>
+            <audio controls id="audio-player" class="w-100 mt-2"></audio>
+            <div class="mt-2">
+                <a href="/download/audio/{{ audio_id }}" class="btn-primary" style="text-decoration: none; display: inline-block;" download>Tải file đã ghép</a>
+            </div>
+        </div>
+    </div>
+    <div id="result-error" class="status-fail" style="display:none;"></div>
+</div>
+
+<div class="card mt-4">
+    <h2>Manifest</h2>
+    <div id="manifest-summary" class="mb-4"></div>
+    <div class="table-responsive">
+        <table class="table" id="manifest-table">
+            <thead>
+                <tr>
+                    <th>Seq</th>
+                    <th>Filename</th>
+                    <th>Duration</th>
+                    <th>Plaintext Hash</th>
+                    <th>Ciphertext Hash</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="mt-2">
+        <a href="/download/manifest/{{ audio_id }}" class="btn-secondary" style="text-decoration: none; display: inline-block;" download>Tải Manifest</a>
+        <a href="/logs/{{ audio_id }}" class="btn-secondary" style="text-decoration: none; display: inline-block;">Xem Log chi tiết</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const audioId = "{{ audio_id }}";
+    window.onload = () => {
+        loadResult(audioId);
+        loadManifest(audioId);
+    };
+</script>
+{% endblock %}

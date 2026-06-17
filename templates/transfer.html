@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Trạng thái truyền - Phiên: <span id="display-audio-id">{{ audio_id }}</span></h2>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+    </div>
+    <p class="status-text" id="status-message">Đang khởi tạo...</p>
+
+    <div class="segment-grid">
+        {% for i in range(1, 6) %}
+        <div class="segment-card" id="seg-card-{{ i }}">
+            <h4>Segment {{ i }} - at{{ i }}</h4>
+            <ul class="status-list" id="status-list-{{ i }}">
+                <li class="pending">Uploaded</li>
+                <li class="pending">Validated</li>
+                <li class="pending">Hashed</li>
+                <li class="pending">Encrypted</li>
+                <li class="pending">Sent</li>
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="action-buttons mt-4" id="post-send-actions" style="display: none;">
+        <button class="btn-primary" onclick="startReceive()">Giải mã và ghép</button>
+        <button class="btn-secondary" onclick="window.location.href='/result/{{ audio_id }}'">Xem Manifest & Kết quả</button>
+        <button class="btn-secondary" onclick="window.location.href='/logs/{{ audio_id }}'">Xem Log</button>
+    </div>
+</div>
+
+<div class="card mt-4 simulation-card">
+    <h3><span style="color: #ff4757;">⚠️</span> Security Test Simulation</h3>
+    <p class="text-sm">Chức năng này sẽ thay đổi dữ liệu của kênh truyền để mô phỏng tấn công. Chỉ sử dụng trước khi bấm Giải mã.</p>
+    <div class="simulation-buttons">
+        <button class="btn-danger" onclick="simulateAttack('missing', 'at3')">Làm mất at3</button>
+        <button class="btn-danger" onclick="simulateAttack('tampering', 'at2')">Sửa at2</button>
+        <button class="btn-danger" onclick="simulateAttack('reorder', 'at1,at3,at2,at4,at5')">Đảo at2 và at3</button>
+        <button class="btn-danger" onclick="simulateAttack('duplicate', 'at3')">Tạo bản sao at3</button>
+        <button class="btn-danger" onclick="simulateAttack('replay', '')">Mô phỏng replay</button>
+    </div>
+    <p id="sim-msg" class="status-pass mt-2" style="display: none;"></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const audioId = "{{ audio_id }}";
+    // Tự động poll trạng thái ngay khi mở trang
+    window.onload = () => {
+        pollStatus(audioId);
+    };
+</script>
+{% endblock %}

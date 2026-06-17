@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "progress": 100,
+  "message": "Giải mã và ghép thành công.",
+  "audio_id": "3da55bf2-2bd0-4876-9026-1753eb479911",
+  "segments": [],
+  "output_file": "reconstructed.mp3",
+  "hash_original": "f798c8a3b0ab4510a61a7a252bd24486bcb400d5b735cc60a088d2c2aaf4c884",
+  "hash_reconstructed": "f798c8a3b0ab4510a61a7a252bd24486bcb400d5b735cc60a088d2c2aaf4c884",
+  "hash_match": "PASS"
+}

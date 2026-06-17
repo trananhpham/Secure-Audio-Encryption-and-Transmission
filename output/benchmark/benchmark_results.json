@@ -1,0 +1,30 @@
+[
+  {
+    "format": "mp3",
+    "total_size_bytes": 771293,
+    "total_duration_sec": 30.27591836734694,
+    "send_time_sec": 0.17513585090637207,
+    "recv_time_sec": 0.32039499282836914,
+    "total_time_sec": 0.4955308437347412,
+    "enc_throughput_mbps": 4.199952897805936,
+    "dec_throughput_mbps": 2.2957984393905795,
+    "storage_overhead_bytes": 3590,
+    "original_hash": "f798c8a3b0ab4510a61a7a252bd24486bcb400d5b735cc60a088d2c2aaf4c884",
+    "reconstructed_hash": "f798c8a3b0ab4510a61a7a252bd24486bcb400d5b735cc60a088d2c2aaf4c884",
+    "hash_match": "PASS"
+  },
+  {
+    "format": "wav",
+    "total_size_bytes": 5331622,
+    "total_duration_sec": 30.2159410430839,
+    "send_time_sec": 0.23006153106689453,
+    "recv_time_sec": 0.2848684787750244,
+    "total_time_sec": 0.514930009841919,
+    "enc_throughput_mbps": 22.101178509101008,
+    "dec_throughput_mbps": 17.84904735003034,
+    "storage_overhead_bytes": 3601,
+    "original_hash": "c9d0296ccdbf2654e04abadebc54cd0dbf643098f5b3ac63798db31675e48da2",
+    "reconstructed_hash": "c9d0296ccdbf2654e04abadebc54cd0dbf643098f5b3ac63798db31675e48da2",
+    "hash_match": "PASS"
+  }
+]
