@@ -24,6 +24,14 @@
 </div>
 
 <div class="card mt-4">
+    <h2>Phân tích Entropy (Tính ngẫu nhiên)</h2>
+    <p style="color: #64748b; margin-bottom: 1rem; font-size: 0.9rem;">Đo lường mức độ ngẫu nhiên của dữ liệu (Shannon Entropy). Ciphertext/Stego có Entropy tiệm cận 8.0 chứng tỏ mã hóa bảo mật cực cao, không thể dò đoán.</p>
+    <div style="max-width: 600px; margin: 0 auto;">
+        <canvas id="entropyChart"></canvas>
+    </div>
+</div>
+
+<div class="card mt-4">
     <h2>Manifest</h2>
     <div id="manifest-summary" class="mb-4"></div>
     <div class="table-responsive">
@@ -48,11 +56,50 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const audioId = "{{ audio_id }}";
     window.onload = () => {
         loadResult(audioId);
         loadManifest(audioId);
+        loadEntropy(audioId);
     };
+
+    async function loadEntropy(id) {
+        try {
+            const res = await fetch(`/api/transfer/${id}/entropy`);
+            if(!res.ok) return;
+            const data = await res.json();
+            
+            const ctx = document.getElementById('entropyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['File gốc (Plaintext)', 'File ẩn mã (Stego/Ciphertext)'],
+                    datasets: [{
+                        label: 'Shannon Entropy (Tối đa 8.0)',
+                        data: [data.plaintext_entropy, data.ciphertext_entropy],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 99, 132, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 8.5
+                        }
+                    }
+                }
+            });
+        } catch(e) {}
+    }
 </script>
 {% endblock %}

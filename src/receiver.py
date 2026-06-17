@@ -44,6 +44,13 @@ class Receiver:
             expected_hmac = bytes.fromhex(manifest.manifest_hmac)
             manifest_dict = manifest.model_dump()
             ManifestAuth.verify_hmac(hmac_key, manifest_dict, expected_hmac)
+            
+            # 3.1 Verify ECDSA signature
+            if manifest.manifest_signature:
+                public_key = key_mgr.get_ecdsa_public_key(Path("secrets/sender_public.pem"))
+                expected_sig = base64.b64decode(manifest.manifest_signature)
+                ManifestAuth.verify_ecdsa(public_key, manifest_dict, expected_sig)
+                
             logger.log_event("MANIFEST_VERIFIED")
 
             # 4-5. Validate total segments and expected order
@@ -75,9 +82,9 @@ class Receiver:
                     seg.sequence_number
                 )
                 
-                # Read ciphertext
-                with open(filepath, "rb") as f:
-                    ciphertext = f.read()
+                # Extract ciphertext from Stego cover
+                from src.crypto.steganography import Steganography
+                ciphertext = Steganography.extract_data_eof(filepath)
                 
                 # 11. Check ciphertext hash
                 ct_hash = Hashing.hash_data(ciphertext)

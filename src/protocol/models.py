@@ -36,3 +36,4 @@ class Manifest(BaseModel):
     expected_order: List[str]
     segments: List[SegmentMetadata]
     manifest_hmac: str = ""
+    manifest_signature: str = ""
