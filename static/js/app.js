@@ -178,6 +178,13 @@ async function pollStatus(id) {
         if (state.status === 'success') {
             for(let i=1; i<=5; i++) updateStatusList(i, 'success');
             document.getElementById('post-send-actions').style.display = 'flex';
+            
+            // Load hacker audio now that it is ready
+            const hackerAudio = document.getElementById('hacker-audio');
+            if (hackerAudio && hackerAudio.getAttribute('data-src') && !hackerAudio.src.includes('hacker_file')) {
+                hackerAudio.src = hackerAudio.getAttribute('data-src') + "?t=" + Date.now();
+                hackerAudio.load();
+            }
         } else if (state.status === 'error') {
             document.getElementById('status-message').className = "status-text status-fail";
         } else {
@@ -271,6 +278,11 @@ async function loadLogs(id) {
     } catch (e) {}
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    fetchLogs();
+    setInterval(fetchLogs, 2000);
+});
+
 function renderLogs(filterLevel) {
     const tbody = document.querySelector('#log-table tbody');
     if(!tbody) return;
@@ -325,6 +337,19 @@ async function simulateAttack(action, segmentOrOrder) {
         } else {
             msgEl.className = 'status-pass mt-2';
             msgEl.innerText = data.message;
+            
+            // Cập nhật lại góc nhìn của Hacker
+            const hackerAudio = document.getElementById('hacker-audio');
+            if (hackerAudio && hackerAudio.getAttribute('data-src')) {
+                hackerAudio.src = hackerAudio.getAttribute('data-src') + "?t=" + Date.now();
+                hackerAudio.load();
+            }
+            
+            const hackerStatus = document.getElementById('hacker-status');
+            if (hackerStatus) {
+                hackerStatus.innerText = `🎧 Kênh truyền bị can thiệp (Mô phỏng: ${action})`;
+                hackerStatus.style.color = '#eab308'; // màu vàng cảnh báo
+            }
         }
     } catch (e) {
         alert(e.message);
