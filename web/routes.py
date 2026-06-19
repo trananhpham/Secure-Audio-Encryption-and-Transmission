@@ -23,6 +23,10 @@ def transfer(audio_id):
 def result(audio_id):
     return render_template('result.html', audio_id=audio_id)
 
+@web_bp.route('/hacker-result/<audio_id>')
+def hacker_result(audio_id):
+    return render_template('hacker_result.html', audio_id=audio_id)
+
 @web_bp.route('/logs/<audio_id>')
 def logs(audio_id):
     return render_template('logs.html', audio_id=audio_id)
