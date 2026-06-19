@@ -4,20 +4,25 @@ from pathlib import Path
 
 class Steganography:
     @staticmethod
-    def generate_dummy_wav(output_path: Path, num_frames=44100):
-        """Generates a silent 1-second WAV file as a cover."""
+    def prepare_cover_audio(output_path: Path):
+        """Copies the cover audio or generates a silent 1-second WAV."""
+        cover_path = Path("sample_data/hacker_nghe.wav")
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with wave.open(str(output_path), 'wb') as wav_file:
-            wav_file.setnchannels(1)
-            wav_file.setsampwidth(2)
-            wav_file.setframerate(44100)
-            # Write silence
-            wav_file.writeframes(b'\x00' * (num_frames * 2))
+        if cover_path.exists():
+            import shutil
+            shutil.copy2(cover_path, output_path)
+        else:
+            with wave.open(str(output_path), 'wb') as wav_file:
+                wav_file.setnchannels(1)
+                wav_file.setsampwidth(2)
+                wav_file.setframerate(44100)
+                # Write silence
+                wav_file.writeframes(b'\x00' * (44100 * 2))
 
     @staticmethod
     def embed_data_eof(data: bytes, output_path: Path):
-        """Appends data to the end of a dummy WAV file (EOF Steganography)."""
-        Steganography.generate_dummy_wav(output_path)
+        """Appends data to the end of a cover WAV file (EOF Steganography)."""
+        Steganography.prepare_cover_audio(output_path)
         with open(output_path, "ab") as f:
             f.write(b'STEG') # Magic bytes for easy extraction
             f.write(len(data).to_bytes(8, 'big'))
