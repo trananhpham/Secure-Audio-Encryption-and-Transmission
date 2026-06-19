@@ -122,7 +122,9 @@ def simulate_missing(
     segment: str = typer.Option(..., "--segment", help="Segment filename to remove (e.g. at3)")
 ):
     """Simulates missing segment attack."""
-    target = channel_dir / f"{segment}.enc"
+    target = channel_dir / f"{segment}_stego.wav"
+    if not target.exists():
+        target = channel_dir / f"{segment}.enc"
     if target.exists():
         target.unlink()
         console.print(f"[yellow]Removed {target.name} to simulate missing segment.[/yellow]")
@@ -135,7 +137,9 @@ def simulate_tampering(
     segment: str = typer.Option(..., "--segment", help="Segment filename to tamper (e.g. at2)")
 ):
     """Simulates tampering by modifying 1 byte."""
-    target = channel_dir / f"{segment}.enc"
+    target = channel_dir / f"{segment}_stego.wav"
+    if not target.exists():
+        target = channel_dir / f"{segment}.enc"
     if target.exists():
         with open(target, "r+b") as f:
             f.seek(10)
@@ -152,7 +156,9 @@ def simulate_reorder(
     order: str = typer.Option(..., "--order", help="Comma separated order, e.g. at1,at3,at2,at4,at5")
 ):
     """Simulates out-of-order segment delivery."""
-    order_list = [f"{o.strip()}.enc" for o in order.split(",")]
+    # Assuming the current transfer used _stego.wav or .enc
+    ext = "_stego.wav" if any(f.name.endswith("_stego.wav") for f in channel_dir.iterdir()) else ".enc"
+    order_list = [f"{o.strip()}{ext}" for o in order.split(",")]
     order_path = channel_dir / "received_order.json"
     with open(order_path, "w") as f:
         json.dump(order_list, f)
@@ -164,9 +170,11 @@ def simulate_duplicate(
     segment: str = typer.Option(..., "--segment", help="Segment to duplicate (e.g. at3)")
 ):
     """Simulates duplicate segment delivery."""
-    target = channel_dir / f"{segment}.enc"
+    target = channel_dir / f"{segment}_stego.wav"
+    if not target.exists():
+        target = channel_dir / f"{segment}.enc"
     if target.exists():
-        dup = channel_dir / f"{segment}_copy.enc"
+        dup = channel_dir / f"{target.stem}_copy{target.suffix}"
         import shutil
         shutil.copy2(target, dup)
         console.print(f"[yellow]Duplicated {target.name} as {dup.name}[/yellow]")

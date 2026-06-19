@@ -6,15 +6,21 @@ from src.utils.canonical_json import to_canonical_json
 from src.exceptions import InvalidManifestError
 from src.utils.file_utils import atomic_write
 
+import base64
+
 class ManifestManager:
     @staticmethod
-    def create_manifest(manifest: Manifest, hmac_key: bytes, output_path: Path) -> None:
-        """Calculates HMAC and writes manifest to file."""
+    def create_manifest(manifest: Manifest, hmac_key: bytes, output_path: Path, ecdsa_private_key=None) -> None:
+        """Calculates HMAC and optionally ECDSA signature, then writes manifest to file."""
         manifest_dict = manifest.model_dump()
         hmac_digest = ManifestAuth.calculate_hmac(hmac_key, manifest_dict)
         manifest.manifest_hmac = hmac_digest.hex()
         
-        # We need to dump it again to get the version with HMAC
+        if ecdsa_private_key:
+            manifest_dict = manifest.model_dump()
+            sig = ManifestAuth.sign_ecdsa(ecdsa_private_key, manifest_dict)
+            manifest.manifest_signature = base64.b64encode(sig).decode('utf-8')
+        
         final_dict = manifest.model_dump()
         canonical_bytes = to_canonical_json(final_dict)
         

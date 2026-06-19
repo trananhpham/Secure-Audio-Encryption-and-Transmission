@@ -17,3 +17,20 @@ class Hashing:
             while chunk := f.read(8192):
                 hasher.update(chunk)
         return hasher.hexdigest()
+
+    @staticmethod
+    def calculate_entropy(data: bytes) -> float:
+        """Calculates Shannon entropy of data bytes."""
+        if not data:
+            return 0.0
+        import math
+        entropy = 0
+        length = len(data)
+        counts = [0] * 256
+        for byte in data:
+            counts[byte] += 1
+        for count in counts:
+            if count > 0:
+                p_x = float(count) / length
+                entropy -= p_x * math.log(p_x, 2)
+        return entropy
