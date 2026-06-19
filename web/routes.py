@@ -165,7 +165,7 @@ def health():
 
 @web_bp.route('/api/transfer/<audio_id>/entropy', methods=['GET'])
 def api_entropy(audio_id):
-    upload_dir = Config.OUTPUT_DIR / "uploads" / audio_id
+    upload_dir = Path(current_app.config['UPLOAD_FOLDER']) / audio_id
     channel_dir = Config.OUTPUT_DIR / "channel" / audio_id
     
     if not upload_dir.exists() or not channel_dir.exists():
