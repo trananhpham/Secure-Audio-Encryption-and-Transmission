@@ -177,12 +177,29 @@ async function pollStatus(id) {
         
         if (state.status === 'success') {
             for(let i=1; i<=5; i++) updateStatusList(i, 'success');
-            // Tự động chuyển hướng sang trang kết quả bình thường
-            window.location.href = `/result/${id}`;
+            
+            if (window.isReceiving) {
+                // Tự động chuyển hướng sang trang kết quả bình thường sau khi Giải mã
+                window.location.href = `/result/${id}`;
+            } else {
+                // Sender chạy xong, hiện các nút Giải mã và Load Hacker Audio
+                document.getElementById('post-send-actions').style.display = 'flex';
+                const hackerAudio = document.getElementById('hacker-audio');
+                if (hackerAudio && hackerAudio.getAttribute('data-src') && !hackerAudio.src.includes('hacker_file')) {
+                    hackerAudio.src = hackerAudio.getAttribute('data-src') + "?t=" + Date.now();
+                    hackerAudio.load();
+                }
+            }
         } else if (state.status === 'error') {
             document.getElementById('status-message').className = "status-text status-fail";
-            // Tự động chuyển hướng sang trang góc nhìn của hacker
-            window.location.href = `/hacker-result/${id}`;
+            
+            if (window.isReceiving) {
+                // Tự động chuyển hướng sang trang góc nhìn của hacker nếu giải mã lỗi
+                window.location.href = `/hacker-result/${id}`;
+            } else {
+                // Lỗi khi gửi, chỉ hiện lại nút
+                document.getElementById('post-send-actions').style.display = 'flex';
+            }
         } else {
             // continue polling
             setTimeout(() => pollStatus(id), 1000);
@@ -194,6 +211,7 @@ async function pollStatus(id) {
 
 async function startReceive() {
     try {
+        window.isReceiving = true;
         await fetch(`/api/transfer/${audioId}/receive`, { method: 'POST' });
         document.getElementById('post-send-actions').style.display = 'none';
         pollStatus(audioId);
