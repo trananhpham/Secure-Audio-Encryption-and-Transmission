@@ -258,6 +258,10 @@ def get_hacker_file(audio_id):
     if not enc_files:
         return "File not found", 404
         
+    # NẾU LÀ FILE STEGO, TRẢ VỀ LUÔN FILE ĐẦU TIÊN (HACKER SẼ NGHE THẤY ÂM THANH MỒI NHỬ)
+    if enc_files[0].name.endswith("_stego.wav"):
+        return send_file(enc_files[0], as_attachment=False, mimetype="audio/wav", download_name="stolen_data.wav")
+        
     encrypted_bytes = b""
     for enc_file in enc_files:
         with open(enc_file, "rb") as f:
