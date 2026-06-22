@@ -177,18 +177,12 @@ async function pollStatus(id) {
         
         if (state.status === 'success') {
             for(let i=1; i<=5; i++) updateStatusList(i, 'success');
-            document.getElementById('post-send-actions').style.display = 'flex';
-            
-            // Load hacker audio now that it is ready
-            const hackerAudio = document.getElementById('hacker-audio');
-            if (hackerAudio && hackerAudio.getAttribute('data-src') && !hackerAudio.src.includes('hacker_file')) {
-                hackerAudio.src = hackerAudio.getAttribute('data-src') + "?t=" + Date.now();
-                hackerAudio.load();
-            }
+            // Tự động chuyển hướng sang trang kết quả bình thường
+            window.location.href = `/result/${id}`;
         } else if (state.status === 'error') {
             document.getElementById('status-message').className = "status-text status-fail";
-            // Hiện lại các nút để người dùng có thể bấm vào Xem Kết Quả hoặc Xem Log
-            document.getElementById('post-send-actions').style.display = 'flex';
+            // Tự động chuyển hướng sang trang góc nhìn của hacker
+            window.location.href = `/hacker-result/${id}`;
         } else {
             // continue polling
             setTimeout(() => pollStatus(id), 1000);

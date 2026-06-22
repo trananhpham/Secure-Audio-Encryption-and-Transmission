@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #050505;
+        color: #ff3333;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .hacker-card {
+        background-color: #111;
+        border: 1px solid #ff3333;
+        box-shadow: 0 0 15px rgba(255, 51, 51, 0.2);
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hacker-card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(255,51,51,0.05) 2px,
+            rgba(255,51,51,0.05) 4px
+        );
+        pointer-events: none;
+    }
+    h1, h2, h3 {
+        color: #ff0000;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 5px #ff0000;
+    }
+    .glitch {
+        animation: glitch 1s linear infinite;
+    }
+    @keyframes glitch {
+        2%, 64% { transform: translate(2px, 0) skew(0deg); }
+        4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+        62% { transform: translate(0, 0) skew(5deg); }
+    }
+    .btn-hacker {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        color: #ff3333;
+        border: 1px solid #ff3333;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-weight: bold;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .btn-hacker:hover {
+        background: #ff3333;
+        color: #000;
+        box-shadow: 0 0 10px #ff3333;
+    }
+    .terminal-text {
+        color: #ff6666;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="hacker-card mt-4">
+    <h2 class="glitch">⚠ GÓC NHÌN CỦA HACKER ⚠</h2>
+    <hr style="border-color: #ff3333; margin: 1rem 0;">
+    
+    <div class="terminal-text">> HACKER_INTERCEPT_SUCCESS: TRUE</div>
+    <div class="terminal-text">> ATTEMPTING_DECRYPTION...</div>
+    <div class="terminal-text">> FATAL ERROR: <span id="hacker-error" style="color: white; font-weight: bold;"></span></div>
+    <br>
+    <p style="color: #ff9999;">Hệ thống mã hóa AES-256-GCM kết hợp Chữ ký số ECDSA đã chặn đứng hoàn toàn nỗ lực giải mã của tin tặc.</p>
+</div>
+
+<div class="hacker-card">
+    <h3>🎧 FILE ÂM THANH THU ĐƯỢC (STEGANOGRAPHY)</h3>
+    <p class="terminal-text">> Tin tặc chỉ thu được File vỏ bọc (Cover Audio), toàn bộ dữ liệu thật đã bị giấu đi.</p>
+    <audio controls id="hacker-audio" class="w-100 mt-2" style="filter: sepia(1) hue-rotate(300deg);"></audio>
+    <div class="mt-2">
+        <a href="/api/transfer/{{ audio_id }}/hacker_file" class="btn-hacker" download>Tải file nghe thử</a>
+    </div>
+</div>
+
+<div class="hacker-card">
+    <h3>📊 PHÂN TÍCH ENTROPY (ĐỘ NGẪU NHIÊN)</h3>
+    <p class="terminal-text">> Hacker cố gắng phân tích cấu trúc file nhưng nhận thấy độ ngẫu nhiên đạt đỉnh điểm (Mật mã an toàn tuyệt đối).</p>
+    <div style="max-width: 600px; margin: 0 auto; background: rgba(0,0,0,0.5); padding: 1rem; border: 1px solid #ff3333;">
+        <canvas id="entropyChart"></canvas>
+    </div>
+</div>
+
+<div class="mt-4 text-center">
+    <a href="/transfer/{{ audio_id }}" class="btn-hacker">Trở lại Màn hình Truyền tải</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const audioId = "{{ audio_id }}";
+    
+    window.onload = async () => {
+        // Load Hacker Audio
+        document.getElementById('hacker-audio').src = `/api/transfer/${audioId}/hacker_file?t=${Date.now()}`;
+        
+        // Load Status Error Message
+        try {
+            const res = await fetch(`/api/transfer/${audioId}/status`);
+            const state = await res.json();
+            document.getElementById('hacker-error').innerText = state.message || "DECRYPTION FAILED";
+        } catch(e) {}
+        
+        // Load Entropy Chart
+        try {
+            const res = await fetch(`/api/transfer/${audioId}/entropy`);
+            if(!res.ok) return;
+            const data = await res.json();
+            
+            // Set Chart.js defaults for Hacker theme
+            Chart.defaults.color = '#ff6666';
+            Chart.defaults.borderColor = 'rgba(255, 51, 51, 0.2)';
+            
+            const ctx = document.getElementById('entropyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['File gốc (Ẩn)', 'File bị đánh cắp'],
+                    datasets: [{
+                        label: 'Shannon Entropy',
+                        data: [data.plaintext_entropy, data.ciphertext_entropy],
+                        backgroundColor: [
+                            'rgba(100, 100, 100, 0.6)',
+                            'rgba(255, 51, 51, 0.8)'
+                        ],
+                        borderColor: [
+                            '#888',
+                            '#ff0000'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 8.5
+                        }
+                    }
+                }
+            });
+        } catch(e) {}
+    };
+</script>
+{% endblock %}
