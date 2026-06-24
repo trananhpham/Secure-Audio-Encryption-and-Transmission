@@ -22,17 +22,17 @@ Bài tập lớn học phần FIT4012 – Nhập môn An toàn bảo mật thôn
 
 Hệ thống Secure Audio Segment Transfer được thiết kế để bảo mật quá trình truyền tải dữ liệu âm thanh nhạy cảm. Hệ thống thực hiện chia nhỏ, mã hóa AES-256-GCM, quản lý tính toàn vẹn thông qua Manifest và SHA-256 Hash để đảm bảo các đoạn âm thanh không bị nghe trộm, chỉnh sửa, mất mát, thay đổi thứ tự hoặc tấn công phát lại (Replay Attack) trong quá trình truyền tải trên môi trường không tin cậy.
 
-## 2. Chức năng chính
+## 2. Chức năng chính & Nâng cao
 
 - Đọc 5 file âm thanh (`at1` đến `at5`).
-- Mã hóa từng đoạn bằng chuẩn mã hóa xác thực AES-GCM (256-bit).
-- Sinh khóa an toàn bằng HKDF từ Master Key và Session Salt ngẫu nhiên.
-- Sinh Manifest chứa thông tin siêu dữ liệu (Duration, Hash, Sequence) và xác thực bằng HMAC-SHA256.
-- Giải mã và xác thực tính toàn vẹn (Integrity) từng đoạn âm thanh.
-- Ráp nối (Assemble) chính xác 5 đoạn thành 1 file âm thanh hoàn chỉnh.
-- Bảo vệ chống: Missing segment, Reorder, Tampering, Duplication, Replay.
+- **Mã hóa tuyệt đối:** Mã hóa từng đoạn bằng chuẩn mã hóa xác thực AES-GCM (256-bit).
+- **Tính toàn vẹn & Xác thực:** Sinh Manifest chứa thông tin siêu dữ liệu (Duration, Hash, Sequence) và xác thực bằng **HMAC-SHA256**.
+- **Tính chống chối bỏ (Non-repudiation):** Tích hợp Chữ ký số **ECDSA (Elliptic Curve Digital Signature Algorithm)** cho file Manifest, đảm bảo tính danh tính người gửi.
+- **Giấu tin (Steganography):** Toàn bộ dữ liệu mã hóa được giấu nối tiếp vào một file âm thanh vỏ bọc ngụy trang (Cover Audio). Nếu tin tặc chặn bắt, chúng chỉ nghe được đoạn âm thanh mồi nhử do hệ thống tạo ra.
+- **Phân tích Entropy:** Tích hợp bộ tính toán độ ngẫu nhiên (Shannon Entropy). Biểu diễn trực quan trên web chứng minh mức độ ngẫu nhiên tuyệt đối của Ciphertext.
+- Bảo vệ chống: Missing segment, Reorder, Tampering, Duplication, Replay Attack.
+- **Trải nghiệm UX "Góc nhìn Hacker":** Giao diện Web trực quan hiển thị cụ thể những gì tin tặc thu được và kết quả chặn đứng giải mã khi kênh truyền bị tấn công.
 - Đo lường và vẽ biểu đồ hiệu năng hệ thống (Benchmark).
-- Giao diện Web (Flask) trực quan hỗ trợ toàn bộ quá trình demo.
 
 ## 3. Công nghệ sử dụng
 
