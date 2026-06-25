@@ -2,6 +2,9 @@ import time
 import os
 import json
 import pandas as pd
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
 from src.sender import Sender
@@ -112,6 +115,28 @@ class Benchmark:
         plt.ylabel("Time (seconds)")
         plt.tight_layout()
         plt.savefig(self.benchmark_dir / "benchmark_chart.png")
+        plt.close()
+
+    def _dataframe_to_markdown(self, df: pd.DataFrame) -> str:
+        table = df.reset_index()
+        headers = [str(col) for col in table.columns]
+        rows = []
+
+        for _, row in table.iterrows():
+            values = []
+            for value in row:
+                if isinstance(value, float):
+                    values.append(f"{value:.6f}")
+                else:
+                    values.append(str(value))
+            rows.append(values)
+
+        lines = [
+            "| " + " | ".join(headers) + " |",
+            "| " + " | ".join(["---"] * len(headers)) + " |",
+        ]
+        lines.extend("| " + " | ".join(row) + " |" for row in rows)
+        return "\n".join(lines)
 
     def _create_markdown_report(self, df: pd.DataFrame):
         avg = df.groupby("format").mean(numeric_only=True)
@@ -119,7 +144,7 @@ class Benchmark:
 
 ## Average Results
 
-{avg.to_markdown()}
+{self._dataframe_to_markdown(avg)}
 
 ## Chart
 ![Benchmark Chart](benchmark_chart.png)

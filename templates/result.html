@@ -1,62 +1,90 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <h2>Kết quả Giải mã và Ghép nối</h2>
-    <div id="result-container" style="display:none;">
-        <h3 class="status-success mb-2">Ghép âm thanh thành công</h3>
-        <div class="result-info">
-            <p><strong>Audio ID:</strong> <span id="res-audio-id"></span></p>
-            <p><strong>Original SHA-256:</strong> <span id="res-hash-orig" class="hash-text"></span></p>
-            <p><strong>Reconstructed SHA-256:</strong> <span id="res-hash-recon" class="hash-text"></span></p>
-            <div class="hash-result mt-2" id="res-hash-match"></div>
-        </div>
-        
-        <div class="player-container mt-4">
-            <h4>Trình phát âm thanh</h4>
-            <audio controls id="audio-player" class="w-100 mt-2"></audio>
-            <div class="mt-2">
-                <a href="/download/audio/{{ audio_id }}" class="btn-primary" style="text-decoration: none; display: inline-block;" download>Tải file đã ghép</a>
+<section class="page-head">
+    <div>
+        <div class="eyebrow">Verification result</div>
+        <h1>Kết quả giải mã và ghép nối</h1>
+        <p class="subtle mono">{{ audio_id }}</p>
+    </div>
+    <a href="/logs/{{ audio_id }}" class="btn-secondary">Xem log</a>
+</section>
+
+<div class="split-layout">
+    <section class="tool-shell">
+        <div class="tool-header">
+            <div>
+                <h2>Đối soát hash</h2>
+                <p class="subtle">So sánh file tham chiếu và file sau khi ghép.</p>
             </div>
         </div>
-    </div>
-    <div id="result-error" class="status-fail" style="display:none;"></div>
+        <div class="tool-body">
+            <div id="result-container" style="display:none;">
+                <div class="result-info">
+                    <p><strong>Audio ID:</strong> <span id="res-audio-id" class="mono"></span></p>
+                    <p><strong>Original SHA-256:</strong> <span id="res-hash-orig" class="hash-text"></span></p>
+                    <p><strong>Reconstructed SHA-256:</strong> <span id="res-hash-recon" class="hash-text"></span></p>
+                    <div class="hash-result" id="res-hash-match"></div>
+                </div>
+
+                <div class="player-container mt-4">
+                    <h3>File âm thanh đã ghép</h3>
+                    <audio controls id="audio-player" class="w-100 mt-2"></audio>
+                    <div class="action-buttons">
+                        <a href="/download/audio/{{ audio_id }}" class="btn-primary" download>Tải file đã ghép</a>
+                    </div>
+                </div>
+            </div>
+            <div id="result-error" class="status-fail" style="display:none;"></div>
+        </div>
+    </section>
+
+    <aside class="tool-shell">
+        <div class="tool-header">
+            <div>
+                <h2>Entropy</h2>
+                <p class="subtle">Độ ngẫu nhiên của plaintext và ciphertext.</p>
+            </div>
+        </div>
+        <div class="tool-body">
+            <div class="chart-box">
+                <canvas id="entropyChart"></canvas>
+            </div>
+        </div>
+    </aside>
 </div>
 
-<div class="card mt-4">
-    <h2>Phân tích Entropy (Tính ngẫu nhiên)</h2>
-    <p style="color: #64748b; margin-bottom: 1rem; font-size: 0.9rem;">Đo lường mức độ ngẫu nhiên của dữ liệu (Shannon Entropy). Ciphertext/Stego có Entropy tiệm cận 8.0 chứng tỏ mã hóa bảo mật cực cao, không thể dò đoán.</p>
-    <div style="max-width: 600px; margin: 0 auto;">
-        <canvas id="entropyChart"></canvas>
+<section class="tool-shell mt-4">
+    <div class="tool-header">
+        <div>
+            <h2>Manifest</h2>
+            <p class="subtle">Metadata, thứ tự đoạn và hash từng segment.</p>
+        </div>
+        <div>
+            <a href="/download/manifest/{{ audio_id }}" class="btn-secondary" download>Tải manifest</a>
+        </div>
     </div>
-</div>
-
-<div class="card mt-4">
-    <h2>Manifest</h2>
-    <div id="manifest-summary" class="mb-4"></div>
-    <div class="table-responsive">
-        <table class="table" id="manifest-table">
-            <thead>
-                <tr>
-                    <th>Seq</th>
-                    <th>Filename</th>
-                    <th>Duration</th>
-                    <th>Plaintext Hash</th>
-                    <th>Ciphertext Hash</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div class="tool-body">
+        <div id="manifest-summary" class="summary-strip mb-4"></div>
+        <div class="table-responsive">
+            <table class="table" id="manifest-table">
+                <thead>
+                    <tr>
+                        <th>Seq</th>
+                        <th>Filename</th>
+                        <th>Duration</th>
+                        <th>Plaintext Hash</th>
+                        <th>Ciphertext Hash</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
-    <div class="mt-2">
-        <a href="/download/manifest/{{ audio_id }}" class="btn-secondary" style="text-decoration: none; display: inline-block;" download>Tải Manifest</a>
-        <a href="/logs/{{ audio_id }}" class="btn-secondary" style="text-decoration: none; display: inline-block;">Xem Log chi tiết</a>
-    </div>
-</div>
+</section>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const audioId = "{{ audio_id }}";
     window.onload = () => {
@@ -68,35 +96,22 @@
     async function loadEntropy(id) {
         try {
             const res = await fetch(`/api/transfer/${id}/entropy`);
-            if(!res.ok) return;
+            if (!res.ok) return;
             const data = await res.json();
-            
             const ctx = document.getElementById('entropyChart').getContext('2d');
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['File gốc (Plaintext)', 'File ẩn mã (Stego/Ciphertext)'],
+                    labels: ['Plaintext', 'Ciphertext / Stego'],
                     datasets: [{
-                        label: 'Shannon Entropy (Tối đa 8.0)',
+                        label: 'Shannon entropy',
                         data: [data.plaintext_entropy, data.ciphertext_entropy],
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.6)',
-                            'rgba(255, 99, 132, 0.6)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)'
-                        ],
-                        borderWidth: 1
+                        backgroundColor: ['#2563eb', '#0f766e']
                     }]
                 },
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 8.5
-                        }
-                    }
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, max: 8.5 } }
                 }
             });
         } catch(e) {}

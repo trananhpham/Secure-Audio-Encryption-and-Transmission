@@ -19,12 +19,12 @@ def test_tampered_at2(test_dir, monkeypatch):
     sender = Sender(test_dir / "sample_data/mp3", test_dir / "output", "mp3", "alice", "bob")
     channel_path = Path(sender.process_and_send())
     
-    # Tamper at2.enc
-    target = channel_path / "at2.enc"
+    # Tamper at2 embedded ciphertext
+    target = channel_path / "at2_stego.wav"
     with open(target, "r+b") as f:
-        f.seek(10)
+        f.seek(-1, 2)
         byte = f.read(1)
-        f.seek(10)
+        f.seek(-1, 2)
         f.write(bytes([byte[0] ^ 0xFF]))
     
     receiver = Receiver(channel_path, test_dir / "output")

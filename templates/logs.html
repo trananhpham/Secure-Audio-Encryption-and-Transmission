@@ -1,39 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <h2>Nhật ký Hệ thống (Logs) - Phiên: <span class="text-sm">{{ audio_id }}</span></h2>
-    
-    <div class="filter-group mb-4 mt-4">
-        <label for="log-filter">Lọc theo sự kiện: </label>
-        <select id="log-filter" onchange="filterLogs()">
-            <option value="ALL">Tất cả</option>
-            <option value="INFO">Thành công (INFO)</option>
-            <option value="WARNING">Cảnh báo (WARNING)</option>
-            <option value="ERROR">Lỗi (ERROR)</option>
-            <option value="ENCRYPT">Mã hóa (ENCRYPT)</option>
-            <option value="DECRYPT">Giải mã (DECRYPT)</option>
-        </select>
+<section class="page-head">
+    <div>
+        <div class="eyebrow">Audit log</div>
+        <h1>Nhật ký hệ thống</h1>
+        <p class="subtle mono">{{ audio_id }}</p>
     </div>
+    <a href="/result/{{ audio_id }}" class="btn-secondary">Quay lại kết quả</a>
+</section>
 
-    <div class="table-responsive">
-        <table class="table" id="log-table">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Level</th>
-                    <th>Event</th>
-                    <th>Message</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+<section class="tool-shell">
+    <div class="tool-header">
+        <div>
+            <h2>Sự kiện phiên truyền</h2>
+            <p class="subtle">Theo dõi gửi, mã hóa, nhận, giải mã và lỗi bảo mật.</p>
+        </div>
+        <div class="filter-group">
+            <label for="log-filter" class="subtle">Lọc</label>
+            <select id="log-filter" onchange="filterLogs()">
+                <option value="ALL">Tất cả</option>
+                <option value="INFO">INFO</option>
+                <option value="WARNING">WARNING</option>
+                <option value="ERROR">ERROR</option>
+                <option value="ENCRYPT">ENCRYPT</option>
+                <option value="DECRYPT">DECRYPT</option>
+            </select>
+        </div>
     </div>
-    
-    <div class="mt-4">
-        <a href="/result/{{ audio_id }}" class="btn-secondary" style="text-decoration: none;">Quay lại Kết quả</a>
+    <div class="tool-body">
+        <div class="table-responsive">
+            <table class="table" id="log-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Level</th>
+                        <th>Event</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
-</div>
+</section>
 {% endblock %}
 
 {% block scripts %}

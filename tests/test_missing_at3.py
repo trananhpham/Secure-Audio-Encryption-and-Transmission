@@ -20,8 +20,8 @@ def test_missing_at3(test_dir, monkeypatch):
     sender = Sender(test_dir / "sample_data/mp3", test_dir / "output", "mp3", "alice", "bob")
     channel_path = Path(sender.process_and_send())
     
-    # Remove at3.enc
-    (channel_path / "at3.enc").unlink()
+    # Remove at3 segment
+    (channel_path / "at3_stego.wav").unlink()
     
     receiver = Receiver(channel_path, test_dir / "output")
     with pytest.raises(MissingSegmentError):

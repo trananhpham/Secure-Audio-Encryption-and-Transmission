@@ -5,7 +5,10 @@ from src.exceptions import ReplayDetectedError
 from src.utils.logger import logger
 
 class ReplayGuard:
-    def __init__(self, db_path: Path = Path("secrets/replay_guard.db")):
+    def __init__(self, db_path: Path | None = None):
+        if db_path is None:
+            from src.config import Config
+            db_path = Config.REPLAY_DB_PATH
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
